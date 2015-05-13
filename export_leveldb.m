@@ -2,8 +2,8 @@ function export_leveldb(X, y, height, width, channels, label)
 %EXPORT_LEVELDB Summary of this function goes here
 %   Detailed explanation goes here
 
-addpath('/Users/Calvin/Github/matlab-leveldb');
-addpath('/Users/Calvin/Github/protobuf-matlab/protobuflib/');
+addpath('/usr/local/matlab-leveldb');
+addpath('/usr/local/protobuf-matlab/protobuflib/');
 addpath('protobuf');
 
 db_path = sprintf('caffe/%s_ldb', label);

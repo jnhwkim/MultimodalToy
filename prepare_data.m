@@ -1,5 +1,6 @@
 %% Load MNIST data
-addpath('../HMC/mnist');
+addpath('/usr/local/caffe/data/mnist');
+addpath('util');
 X_tr = loadMNISTImages('train-images-idx3-ubyte')';
 X_te = loadMNISTImages('t10k-images-idx3-ubyte')';
 y_tr = loadMNISTLabels('train-labels-idx1-ubyte');

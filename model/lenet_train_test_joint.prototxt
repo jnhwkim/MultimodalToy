@@ -1,0 +1,305 @@
+name: "LeNet_Joint"
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "dataL"
+  top: "labelL"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "caffe/tr_l_ldb"
+    batch_size: 64
+    backend: LEVELDB
+  }
+}
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "dataL"
+  top: "labelL"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "caffe/te_l_ldb"
+    batch_size: 100
+    backend: LEVELDB
+  }
+}
+layer {
+  name: "conv1L"
+  type: "Convolution"
+  bottom: "dataL"
+  top: "conv1L"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 20
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool1L"
+  type: "Pooling"
+  bottom: "conv1L"
+  top: "pool1L"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2L"
+  type: "Convolution"
+  bottom: "pool1L"
+  top: "conv2L"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool2L"
+  type: "Pooling"
+  bottom: "conv2L"
+  top: "pool2L"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "ip1L"
+  type: "InnerProduct"
+  bottom: "pool2L"
+  top: "ip1L"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1L"
+  type: "ReLU"
+  bottom: "ip1L"
+  top: "ip1L"
+}
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "dataR"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "caffe/tr_r_ldb"
+    batch_size: 64
+    backend: LEVELDB
+  }
+}
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "dataR"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "caffe/te_r_ldb"
+    batch_size: 100
+    backend: LEVELDB
+  }
+}
+layer {
+  name: "conv1R"
+  type: "Convolution"
+  bottom: "dataR"
+  top: "conv1R"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 20
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool1R"
+  type: "Pooling"
+  bottom: "conv1R"
+  top: "pool1R"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2R"
+  type: "Convolution"
+  bottom: "pool1R"
+  top: "conv2R"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool2R"
+  type: "Pooling"
+  bottom: "conv2R"
+  top: "pool2R"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "ip1R"
+  type: "InnerProduct"
+  bottom: "pool2R"
+  top: "ip1R"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1R"
+  type: "ReLU"
+  bottom: "ip1R"
+  top: "ip1R"
+}
+layer {
+  name: "concat"
+  bottom: "ip1L"
+  bottom: "ip1R"
+  top: "concat"
+  type: "Concat"
+  concat_param {
+    concat_dim: 1
+  }
+}
+layer {
+  name: "joint"
+  type: "InnerProduct"
+  bottom: "concat"
+  top: "joint"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "accuracyJ"
+  type: "Accuracy"
+  bottom: "joint"
+  bottom: "labelL"
+  top: "accuracyJ"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "lossJ"
+  type: "SoftmaxWithLoss"
+  bottom: "joint"
+  bottom: "labelL"
+  top: "lossJ"
+}
