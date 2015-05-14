@@ -3,7 +3,6 @@ layer {
   name: "mnist"
   type: "Data"
   top: "dataL"
-  top: "labelL"
   include {
     phase: TRAIN
   }
@@ -20,7 +19,6 @@ layer {
   name: "mnist"
   type: "Data"
   top: "dataL"
-  top: "labelL"
   include {
     phase: TEST
   }
@@ -256,20 +254,10 @@ layer {
   top: "ip1R"
 }
 layer {
-  name: "concat"
-  bottom: "ip1L"
-  bottom: "ip1R"
-  top: "concat"
-  type: "Concat"
-  concat_param {
-    concat_dim: 1
-  }
-}
-layer {
-  name: "joint"
+  name: "ip2L"
   type: "InnerProduct"
-  bottom: "concat"
-  top: "joint"
+  bottom: "ip1L"
+  top: "ip2L"
   param {
     lr_mult: 1
   }
@@ -287,19 +275,68 @@ layer {
   }
 }
 layer {
-  name: "accuracyJ"
-  type: "Accuracy"
-  bottom: "joint"
-  bottom: "labelL"
-  top: "accuracyJ"
-  include {
-    phase: TEST
+  name: "relu2L"
+  type: "ReLU"
+  bottom: "ip2L"
+  top: "ip2L"
+}
+layer {
+  name: "ip2R"
+  type: "InnerProduct"
+  bottom: "ip1R"
+  top: "ip2R"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
   }
 }
 layer {
-  name: "lossJ"
-  type: "SoftmaxWithLoss"
-  bottom: "joint"
-  bottom: "labelL"
-  top: "lossJ"
+  name: "relu2R"
+  type: "ReLU"
+  bottom: "ip2R"
+  top: "ip2R"
+}
+layer {
+  name: "flatdataL"
+  type: "Flatten"
+  bottom: "ip2L"
+  top: "flatdataL"
+  param {
+    lr_mult: 0
+  }
+}
+layer {
+  name: "flatdataR"
+  type: "Flatten"
+  bottom: "ip2R"
+  top: "flatdataR"
+  param {
+    lr_mult: 0
+  }
+}
+layer {
+  name: "lossL"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "ip2R"
+  bottom: "flatdataL"
+  top: "cross_entropy_lossL"
+}
+layer {
+  name: "lossR"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "ip2L"
+  bottom: "flatdataR"
+  top: "cross_entropy_lossR"
+  loss_weight: 1
 }
